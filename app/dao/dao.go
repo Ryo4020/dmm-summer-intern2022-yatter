@@ -14,6 +14,9 @@ type (
 		// Get account repository
 		Account() repository.Account
 
+		// Get follow repository
+		Follow() repository.Follow
+
 		// Get status repository
 		Status() repository.Status
 
@@ -42,6 +45,10 @@ func New(config DBConfig) (Dao, error) {
 
 func (d *dao) Account() repository.Account {
 	return NewAccount(d.db)
+}
+
+func (d *dao) Follow() repository.Follow {
+	return NewFollow(d.db)
 }
 
 func (d *dao) Status() repository.Status {
