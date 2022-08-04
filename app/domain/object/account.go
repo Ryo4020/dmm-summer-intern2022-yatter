@@ -19,7 +19,7 @@ type (
 		// The username of the account
 		Username string `json:"username,omitempty"`
 
-		// The username of the account
+		// The hashed password of the account
 		PasswordHash string `json:"-" db:"password_hash"`
 
 		// The account's display name
