@@ -37,6 +37,22 @@ type (
 		// The time the account was created
 		CreateAt DateTime `json:"create_at,omitempty" db:"create_at"`
 	}
+
+	DBAccount struct {
+		Username string
+
+		PasswordHash string `db:"password_hash"`
+
+		DisplayName *string `db:"display_name"`
+
+		Avatar *string
+
+		Header *string
+
+		Note *string
+
+		CreateAccountAt DateTime `db:"create_a_at"`
+	}
 )
 
 // Check if given password is match to account's password

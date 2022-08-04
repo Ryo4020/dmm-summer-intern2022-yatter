@@ -25,8 +25,16 @@ func NewStatus(db *sqlx.DB) repository.Status {
 
 // FindById : StatusIdからstatusを取得
 func (r *status) FindById(ctx context.Context, id object.StatusID) (*object.Status, error) {
-	entity := new(object.Status)
-	err := r.db.QueryRowxContext(ctx, "select * from status where id = ?", id).StructScan(entity)
+	entity := new(e)
+	err := r.db.QueryRowxContext(
+		ctx,
+		`SELECT
+		s.create_at AS 'create_s_at', a.create_at AS 'create_a_at', s.*, a.*
+		FROM status AS s
+		JOIN account AS a ON s.account_id = a.id
+		WHERE s.id = ?`,
+		id,
+	).StructScan(entity)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -34,7 +42,22 @@ func (r *status) FindById(ctx context.Context, id object.StatusID) (*object.Stat
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	return entity, nil
+	var status = &object.Status{
+		AccountID: entity.AccountID,
+		Content:   entity.Content,
+		CreateAt:  entity.CreateStatusAt,
+	}
+	status.Account = &object.Account{
+		Username:     entity.Username,
+		PasswordHash: entity.PasswordHash,
+		DisplayName:  entity.DisplayName,
+		Avatar:       entity.Avatar,
+		Header:       entity.Header,
+		Note:         entity.Note,
+		CreateAt:     entity.CreateAccountAt,
+	}
+
+	return status, nil
 }
 
 // AddStatus : statusを作成
@@ -45,4 +68,12 @@ func (r *status) AddStatus(ctx context.Context, s object.Status) error {
 	}
 
 	return nil
+}
+
+// joinテーブルを取得するための、埋め込み構造体
+type e struct {
+	object.DBStatus
+	object.DBAccount
+	ID       int64
+	CreateAt object.DateTime `db:"create_at"`
 }

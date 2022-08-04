@@ -25,7 +25,13 @@ func NewTimeline(db *sqlx.DB) repository.Timeline {
 
 // GetPublic : public timelineを取得
 func (r *timeline) GetPublic(ctx context.Context) ([]*object.Status, error) {
-	rows, err := r.db.QueryContext(ctx, "select * from status")
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT
+		s.create_at AS 'create_s_at', a.create_at AS 'create_a_at', s.*, a.*
+		FROM status AS s
+		JOIN account AS a ON s.account_id = a.id
+		`)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -34,11 +40,29 @@ func (r *timeline) GetPublic(ctx context.Context) ([]*object.Status, error) {
 	}
 	defer rows.Close()
 
-	entity := make([]*object.Status, 0)
+	entity := make([]*e, 0)
 	err = sqlx.StructScan(rows, &entity)
 	if err != nil {
 		return nil, fmt.Errorf("%w", err)
 	}
 
-	return entity, nil
+	timeline := make([]*object.Status, len(entity), cap(entity))
+	for i, v := range entity {
+		timeline[i] = &object.Status{
+			AccountID: v.AccountID,
+			Content:   v.Content,
+			CreateAt:  v.CreateStatusAt,
+		}
+		timeline[i].Account = &object.Account{
+			Username:     v.Username,
+			PasswordHash: v.PasswordHash,
+			DisplayName:  v.DisplayName,
+			Avatar:       v.Avatar,
+			Header:       v.Header,
+			Note:         v.Note,
+			CreateAt:     v.CreateAccountAt,
+		}
+	}
+
+	return timeline, nil
 }
