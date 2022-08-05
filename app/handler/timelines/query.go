@@ -4,7 +4,7 @@ import (
 	"net/url"
 )
 
-// Request query for `POST /v1/timelines/public`
+// Request query for `GET /v1/timelines/public`
 type PublicQuery struct {
 	OnlyMedia string
 	MaxID     string
