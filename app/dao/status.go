@@ -70,6 +70,16 @@ func (r *status) AddStatus(ctx context.Context, s object.Status) error {
 	return nil
 }
 
+// DeleteStatus : statusを削除
+func (r *status) DeleteStatus(ctx context.Context, id object.StatusID) error {
+	_, err := r.db.ExecContext(ctx, "DELETE FROM status WHERE id = ?", id)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	return nil
+}
+
 // joinテーブルを取得するための、埋め込み構造体
 type e struct {
 	object.DBStatus

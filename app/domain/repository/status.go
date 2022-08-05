@@ -11,4 +11,6 @@ type Status interface {
 	FindById(ctx context.Context, id object.StatusID) (*object.Status, error)
 	// Create status with content and account_id
 	AddStatus(ctx context.Context, status object.Status) error
+	// Delete status
+	DeleteStatus(ctx context.Context, id object.StatusID) error
 }
