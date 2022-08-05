@@ -12,7 +12,10 @@ func (h *handler) Public(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var q PublicQuery
-	q.setQuery(r.URL.Query())
+	if err := q.setQuery(r.URL.Query()); err != nil {
+		httperror.BadRequest(w, err)
+		return
+	}
 
 	t := h.app.Dao.Timeline() // domain/repository の取得
 	statuses, err := t.GetPublic(ctx)
