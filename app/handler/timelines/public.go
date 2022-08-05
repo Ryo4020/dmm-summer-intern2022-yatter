@@ -11,7 +11,7 @@ import (
 func (h *handler) Public(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	var q PublicQuery
+	var q TimelineQuery
 	if err := q.setQuery(r.URL.Query()); err != nil {
 		httperror.BadRequest(w, err)
 		return

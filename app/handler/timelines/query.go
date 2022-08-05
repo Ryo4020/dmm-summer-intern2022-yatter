@@ -8,8 +8,8 @@ import (
 	"yatter-backend-go/app/handler/query"
 )
 
-// Request query for `GET /v1/timelines/public`
-type PublicQuery struct {
+// Request query for `GET /v1/timelines/home` & `GET /v1/timelines/public`
+type TimelineQuery struct {
 	OnlyMedia string
 	MaxID     object.AccountID
 	SinceID   object.AccountID
@@ -17,7 +17,7 @@ type PublicQuery struct {
 }
 
 // Set request query to struct
-func (q *PublicQuery) setQuery(v url.Values) error {
+func (q *TimelineQuery) setQuery(v url.Values) error {
 	q.OnlyMedia = v.Get("only_media")
 
 	m := query.GetQueryNumInStr(v, "max_id", "0")
