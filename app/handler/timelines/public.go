@@ -18,7 +18,7 @@ func (h *handler) Public(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := h.app.Dao.Timeline() // domain/repository の取得
-	statuses, err := t.GetPublic(ctx)
+	statuses, err := t.GetPublic(ctx, q.MaxID, q.SinceID, q.Limit)
 	if err != nil {
 		httperror.InternalServerError(w, err)
 		return
