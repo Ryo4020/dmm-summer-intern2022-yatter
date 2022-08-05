@@ -29,6 +29,7 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	account := auth.AccountOf(r)
 	status.AccountID = account.ID
+	status.Account = account
 
 	s := h.app.Dao.Status() // domain/repository の取得
 	if err := s.AddStatus(ctx, *status); err != nil {
