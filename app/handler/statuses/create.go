@@ -1,20 +1,20 @@
-package accounts
+package statuses
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"yatter-backend-go/app/domain/object"
+	"yatter-backend-go/app/handler/auth"
 	"yatter-backend-go/app/handler/httperror"
 )
 
-// Request body for `POST /v1/accounts`
+// Request body for `POST /v1/statuses`
 type AddRequest struct {
-	Username string
-	Password string
+	Status string
 }
 
-// Handle request for `POST /v1/accounts`
+// Handle request for `POST /v1/statuses`
 func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -24,21 +24,21 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account := new(object.Account)
-	account.Username = req.Username
-	if err := account.SetPassword(req.Password); err != nil {
-		httperror.InternalServerError(w, err)
-		return
-	}
+	status := new(object.Status)
+	status.Content = req.Status
 
-	a := h.app.Dao.Account() // domain/repository の取得
-	if err := a.AddAccount(ctx, *account); err != nil {
+	account := auth.AccountOf(r)
+	status.AccountID = account.ID
+	status.Account = account
+
+	s := h.app.Dao.Status() // domain/repository の取得
+	if err := s.AddStatus(ctx, *status); err != nil {
 		httperror.InternalServerError(w, err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(account); err != nil {
+	if err := json.NewEncoder(w).Encode(status); err != nil {
 		httperror.InternalServerError(w, err)
 		return
 	}

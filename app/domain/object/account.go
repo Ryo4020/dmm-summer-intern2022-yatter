@@ -19,7 +19,7 @@ type (
 		// The username of the account
 		Username string `json:"username,omitempty"`
 
-		// The username of the account
+		// The hashed password of the account
 		PasswordHash string `json:"-" db:"password_hash"`
 
 		// The account's display name
@@ -36,6 +36,22 @@ type (
 
 		// The time the account was created
 		CreateAt DateTime `json:"create_at,omitempty" db:"create_at"`
+	}
+
+	DBAccount struct {
+		Username string
+
+		PasswordHash string `db:"password_hash"`
+
+		DisplayName *string `db:"display_name"`
+
+		Avatar *string
+
+		Header *string
+
+		Note *string
+
+		CreateAccountAt DateTime `db:"create_a_at"`
 	}
 )
 
