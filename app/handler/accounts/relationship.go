@@ -8,11 +8,6 @@ import (
 	"yatter-backend-go/app/handler/httperror"
 )
 
-// Request quey for `GET /v1/accounts/relationships``
-type RelationshipsQuery struct {
-	Username string
-}
-
 // Handle request for `GET /v1/accounts/relationships`
 func (h *handler) Relationships(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -20,7 +15,8 @@ func (h *handler) Relationships(w http.ResponseWriter, r *http.Request) {
 	follower := auth.AccountOf(r)
 
 	var q RelationshipsQuery
-	q.Username = r.URL.Query().Get("username")
+	q.setQuery(r.URL.Query())
+
 	a := h.app.Dao.Account()
 	followee, err := a.FindByUsername(ctx, q.Username)
 	if err != nil {

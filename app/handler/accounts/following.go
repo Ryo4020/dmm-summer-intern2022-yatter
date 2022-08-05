@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi"
 )
 
-// Handle request for `POST /v1/accounts/{username}/following`
+// Handle request for `GET /v1/accounts/{username}/following`
 func (h *handler) Following(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -22,9 +22,15 @@ func (h *handler) Following(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var q FollowingQuery
+	if err := q.setQuery(r.URL.Query()); err != nil {
+		httperror.BadRequest(w, err)
+		return
+	}
+
 	f := h.app.Dao.Follow() // domain/repository の取得
 	// フォローしているアカウントリストの取得
-	accounts, err := f.GetFollowing(ctx, *follower)
+	accounts, err := f.GetFollowing(ctx, *follower, q.Limit)
 	if err != nil {
 		httperror.InternalServerError(w, err)
 		return
