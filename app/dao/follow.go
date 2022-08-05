@@ -49,9 +49,36 @@ func (r *follow) FindRelation(ctx context.Context, user object.Account, another 
 	return relation, nil
 }
 
+// GetFollowing : アカウントがフォローしているアカウントリストを取得
+func (r *follow) GetFollowing(ctx context.Context, account object.Account) ([]*object.Account, error) {
+	rows, err := r.db.QueryContext(
+		ctx,
+		`SELECT
+		a.*
+		FROM account AS a
+		JOIN follow AS f ON f.followee_id = a.id
+		WHERE f.follower_id = ?`,
+		account.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("%w", err)
+	}
+	defer rows.Close()
+
+	entity := make([]*object.Account, 0)
+	err = sqlx.StructScan(rows, &entity)
+	if err != nil {
+		return nil, fmt.Errorf("%w", err)
+	}
+
+	return entity, nil
+}
+
 // AddFollow : followerとfollowee間のフォロー関係を作成
 func (r *follow) AddFollow(ctx context.Context, follower object.Account, followee object.Account) error {
-	_, err := r.db.ExecContext(ctx, "INSERT INTO follow (follower_id, followee_id) VALUES (?, ?)", follower.ID, followee.ID)
+	_, err := r.db.ExecContext(ctx, "INSERT INTO follow (follower_id, followee_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE follower_id = follower_id", follower.ID, followee.ID)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
