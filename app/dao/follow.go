@@ -50,17 +50,39 @@ func (r *follow) FindRelation(ctx context.Context, user object.Account, another 
 }
 
 // GetFollowing : アカウントがフォローしているアカウントリストを取得
-func (r *follow) GetFollowing(ctx context.Context, account object.Account, limit int) ([]*object.Account, error) {
-	rows, err := r.db.QueryContext(
-		ctx,
-		`SELECT
-		a.*
-		FROM account AS a
-		JOIN follow AS f ON f.followee_id = a.id
-		WHERE f.follower_id = ?
-		LIMIT ?`,
-		account.ID,
-		limit)
+func (r *follow) GetFollowing(ctx context.Context, account object.Account, max_id object.AccountID, since_id object.AccountID, limit int) ([]*object.Account, error) {
+	var rows *sql.Rows
+	var err error
+	if max_id != 0 {
+		rows, err = r.db.QueryContext(
+			ctx,
+			`SELECT
+			a.*
+			FROM account AS a
+			JOIN follow AS f ON f.followee_id = a.id
+			WHERE f.follower_id = ?
+			AND a.id < ?
+			AND a.id > ?
+			LIMIT ?`,
+			account.ID,
+			max_id,
+			since_id,
+			limit)
+	} else {
+		rows, err = r.db.QueryContext(
+			ctx,
+			`SELECT
+			a.*
+			FROM account AS a
+			JOIN follow AS f ON f.followee_id = a.id
+			WHERE f.follower_id = ?
+			AND a.id > ?
+			LIMIT ?`,
+			account.ID,
+			since_id,
+			limit)
+	}
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil

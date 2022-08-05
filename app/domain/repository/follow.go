@@ -10,7 +10,7 @@ type Follow interface {
 	// Fetch follow relationship
 	FindRelation(ctx context.Context, user object.Account, another object.Account) (*object.Relation, error)
 	// Fetch following of the account
-	GetFollowing(ctx context.Context, account object.Account, limit int) ([]*object.Account, error)
+	GetFollowing(ctx context.Context, account object.Account, max_id object.AccountID, since_id object.AccountID, limit int) ([]*object.Account, error)
 	// Fetch followers of the account
 	GetFollowers(ctx context.Context, account object.Account, max_id object.AccountID, since_id object.AccountID, limit int) ([]*object.Account, error)
 	// Create follow relationship

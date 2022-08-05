@@ -30,7 +30,7 @@ func (h *handler) Following(w http.ResponseWriter, r *http.Request) {
 
 	f := h.app.Dao.Follow() // domain/repository の取得
 	// フォローしているアカウントリストの取得
-	accounts, err := f.GetFollowing(ctx, *follower, q.Limit)
+	accounts, err := f.GetFollowing(ctx, *follower, 0, 0, q.Limit)
 	if err != nil {
 		httperror.InternalServerError(w, err)
 		return
